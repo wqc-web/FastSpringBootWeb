@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhou.api.mapper.SysUserMapper">
+
+    <select id="listByRoleId" resultType="com.zhongzhou.api.entity.SysUser">
+        select u.* from t_sys_user u
+        left join t_user_role ur on u.id = ur.user_id
+        where ur.role_id = #{roleId}
+    </select>
+    <select id="listBydepIdList" resultType="com.zhongzhou.api.entity.SysUser">
+        select u.* from t_sys_user u
+        left join t_user_department tud on u.id = tud.user_id
+        where
+        tud.dep_id in
+        <foreach close=")" collection="depIdList" index="index" item="item" open="(" separator=",">
+            #{item}
+        </foreach>
+    </select>
+    <select id="findDetailByUnionId" resultType="com.zhongzhou.api.entity.SysUser">
+        SELECT * FROM t_sys_user WHERE delete_flag = 0 AND union_id = #{unionId}
+    </select>
+    <select id="queryDepartPosition" resultType="com.zhongzhou.api.entity.SysUser">
+        select u.* , p.name positionName , p.sort positionSort , s.name stationName, s.sort stationSort from t_report r
+        LEFT JOIN t_user_department ud
+        on r.create_user_id = ud.user_id
+        LEFT JOIN t_sys_user u
+        on ud.user_id = u.id
+        LEFT JOIN t_position p
+        on u.position_id = p.id
+        LEFT JOIN t_station s
+        on u.station_id = s.id
+        where u.delete_flag =  0
+        and r.delete_flag = 0
+        and p.delete_flag = 0
+        and u.position_id is not null
+        and ud.dep_id = #{depId}
+        and DATE_FORMAT(r.create_time,'%Y-%m-%d') = #{time}
+        ORDER BY p.id asc
+    </select>
+    <select id="selectIdByName" resultType="com.zhongzhou.api.entity.SysUser">
+        select  * from  t_sys_user where  real_name=#{userName}
+    </select>
+</mapper>

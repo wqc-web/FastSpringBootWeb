@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhou.api.mapper.ReportSwapMapper">
+
+    <select id="queryPage" resultType="com.zhongzhou.api.entity.ReportSwap">
+        select u1.real_name createRealName , u2.real_name receiveRealName , rs.*  from t_report_swap rs
+        LEFT JOIN t_sys_user u1
+        on rs.create_user_id = u1.id
+        LEFT JOIN t_sys_user u2
+        on rs.receive_user_id = u2.id
+        where rs.delete_flag = 0
+        <if test="reportSwap.status != null">
+            and rs.status = #{reportSwap.status}
+        </if>
+        <if test="reportSwap.createRealName != null">
+            and u1.real_name like CONCAT(CONCAT('%', #{reportSwap.createRealName}), '%')
+        </if>
+        <if test="reportSwap.receiveRealName != null">
+            and u2.real_name like CONCAT(CONCAT('%', #{reportSwap.receiveRealName}), '%')
+        </if>
+        <if test="reportSwap.createUserId != null">
+            and rs.create_user_id = #{reportSwap.createUserId}
+        </if>
+        <if test="reportSwap.receiveUserId != null">
+            and rs.receive_user_id = #{reportSwap.receiveUserId}
+        </if>
+        order by rs.create_time desc
+        <if test="startPage != null and size != null">
+            limit  #{startPage} , #{size}
+        </if>
+    </select>
+
+    <select id="queryCount" resultType="java.lang.Integer">
+        select count(1)  from t_report_swap rs
+        LEFT JOIN t_sys_user u1
+        on rs.create_user_id = u1.id
+        LEFT JOIN t_sys_user u2
+        on rs.receive_user_id = u2.id
+        where rs.delete_flag = 0
+        <if test="reportSwap.status != null">
+            and rs.status = #{reportSwap.status}
+        </if>
+        <if test="reportSwap.createRealName != null">
+            and u1.real_name like CONCAT(CONCAT('%', #{reportSwap.createRealName}), '%')
+        </if>
+        <if test="reportSwap.receiveRealName != null">
+            and u2.real_name like CONCAT(CONCAT('%', #{reportSwap.receiveRealName}), '%')
+        </if>
+        <if test="reportSwap.createUserId != null">
+            and rs.create_user_id = #{reportSwap.createUserId}
+        </if>
+        <if test="reportSwap.receiveUserId != null">
+            and rs.receive_user_id = #{reportSwap.receiveUserId}
+        </if>
+    </select>
+    <select id="messagePush" resultType="com.zhongzhou.api.entity.ReportSwap">
+        select * from  t_report_swap where  receive_user_id=#{userId}     order by  id desc   limit 1
+    </select>
+    <select id="oneMonthWeek" resultType="com.zhongzhou.api.entity.Report">
+        SELECT * FROM `t_report`
+        where create_time >=#{today}
+          and   create_time &lt;=#{weekday}
+          and  username=#{userId}
+    </select>
+
+</mapper>

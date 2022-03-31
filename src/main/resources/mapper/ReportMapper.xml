@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhou.api.mapper.ReportMapper">
+
+    <select id="selectReportList" resultType="com.zhongzhou.api.entity.Report">
+        SELECT * FROM t_report WHERE delete_flag = 0 AND create_time between #{startTime} and  #{endTime}
+    </select>
+    <select id="selectexist" resultType="com.zhongzhou.api.entity.Report">
+        select * from t_report where  create_user_id=#{param2} and  create_time=#{param1}
+    </select>
+    <select id="queryDepartTime" resultType="com.zhongzhou.api.entity.Report">
+       select r.* , d.dep_name depName , p.name positionName , p.sort positionSort , u.phone userPhone from t_report r
+        LEFT JOIN t_department d
+        on r.dep_id = d.id
+        LEFT JOIN t_position p
+        on r.position_id = p.id
+        LEFT JOIN t_sys_user u
+        on r.create_user_id = u.id
+        where r.delete_flag = 0
+        and r.dep_id = #{depId}
+        and DATE_FORMAT(r.create_time,'%Y-%m-%d') = #{time}
+    </select>
+    <select id="queryReportCount" resultType="java.lang.Integer">
+        select count(*) from (
+            SELECT count(username) FROM `t_report`
+            where DATE_FORMAT(create_time,'%Y-%m-%d') = #{time}
+            and delete_flag = 0
+            GROUP BY username
+        ) t
+    </select>
+</mapper>
